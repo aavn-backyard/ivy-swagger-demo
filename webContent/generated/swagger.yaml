@@ -1,14 +1,15 @@
 ---
 swagger: "2.0"
 info:
-  description: "Transfer of customer data in a new onboarding dossier."
+  description: "Transfer of customer data in a new onboarding\n\t\t\t\t\t\t\t\t\t\t\
+    \tdossier."
   version: "v1"
   title: "External Dossier Service"
   contact:
     name: "Axon Fintech"
     url: "http://www.axonfintech.com/"
     email: "info@axonivy.com"
-host: "localhost:8081"
+host: "10.123.1.89:6060"
 basePath: "/ivy/api/"
 tags:
 - name: "dossier"
@@ -18,7 +19,7 @@ schemes:
 - "http"
 - "https"
 paths:
-  /designer/individualch/dossiers:
+  /Portal/individualch/dossiers:
     post:
       tags:
       - "dossier"
