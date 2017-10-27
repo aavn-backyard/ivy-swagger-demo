@@ -1,0 +1,238 @@
+---
+swagger: "2.0"
+info:
+  description: "Transfer of customer data in a new onboarding dossier."
+  version: "v1"
+  title: "External Dossier Service"
+  contact:
+    name: "Axon Fintech"
+    url: "http://www.axonfintech.com/"
+    email: "info@axonivy.com"
+host: "localhost:8081"
+basePath: "/ivy/api/"
+tags:
+- name: "dossier"
+- name: "individualch"
+  description: "the individualch API"
+schemes:
+- "http"
+- "https"
+paths:
+  /designer/individualch/dossiers:
+    post:
+      tags:
+      - "dossier"
+      summary: "new client onboarding dossier (COB)"
+      description: "Creates a new client onboarding (COB) dossier for swiss individuals."
+      operationId: "createIndividualCHDossier"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "provider"
+        in: "query"
+        description: "the provider which is requesting the new COB dossier."
+        required: true
+        type: "string"
+      - name: "externalId"
+        in: "query"
+        description: "the external identification key as used by the provider."
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "data to use for the new dossier, such as personal details and\
+          \ adress"
+        required: true
+        schema:
+          $ref: "#/definitions/SobDossier"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ResponseMessage"
+        201:
+          description: "dossier creation response with the individual client onboarding\
+            \ identifier of the new dossier. Only valid data will be mapped. For some\
+            \ invalid data will be map as null."
+          schema:
+            $ref: "#/definitions/ResponseMessage"
+        400:
+          description: "missing param for request"
+          schema:
+            $ref: "#/definitions/ResponseExceptionMessage"
+        500:
+          description: "exception on server side when create new dossier, for some\
+            \ required field when invalid data it will throw mapping exception and\
+            \ dossier will not be created."
+          schema:
+            $ref: "#/definitions/ResponseExceptionMessage"
+      security:
+      - basicAuth: []
+securityDefinitions:
+  basicAuth:
+    type: "basic"
+definitions:
+  Account:
+    type: "object"
+    properties:
+      accountType:
+        type: "string"
+        enum:
+        - "_3A"
+        - "WS3A"
+      fundId1:
+        type: "string"
+      fundPercent1:
+        type: "string"
+      fundId2:
+        type: "string"
+      fundPercent2:
+        type: "string"
+      fundId3:
+        type: "string"
+      fundPercent3:
+        type: "string"
+      fundId4:
+        type: "string"
+      fundPercent4:
+        type: "string"
+      fundId5:
+        type: "string"
+      fundPercent5:
+        type: "string"
+      amount:
+        type: "string"
+        description: "amount of the initial payment"
+      amountRegular:
+        type: "string"
+        description: "amount for regular payments"
+      amountFrequency:
+        type: "string"
+        enum:
+        - "MONTHLY"
+        - "QUARTERLY"
+  Address:
+    type: "object"
+    properties:
+      street:
+        type: "string"
+      houseNo:
+        type: "string"
+      additionalAdress:
+        type: "string"
+      zipCode:
+        type: "string"
+      city:
+        type: "string"
+      addressCountryCode:
+        type: "string"
+        description: "the ISO 3166 alpha-2 country (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)\
+          \ code of the adress"
+  Person:
+    type: "object"
+    required:
+    - "firstName"
+    - "lastName"
+    properties:
+      genderCode:
+        type: "string"
+        description: "the gender of the person use MALE for male and FEMALE for female\
+          \ persons."
+        enum:
+        - "MALE"
+        - "FEMALE"
+      title:
+        type: "string"
+      firstName:
+        type: "string"
+      lastName:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      countryOfBirth:
+        type: "string"
+      maritalStatus:
+        type: "string"
+        description: "the marital state of a person (SINGLE, MARRIED, WIDOWED, DIVORCED,\
+          \ REGISTERED_PARTNERSHIP)"
+        enum:
+        - "SINGLE"
+        - "MARRIED"
+        - "DIVORCED"
+        - "WIDOWED"
+        - "REGISTERED_PARTNERSHIP"
+      dateOfBirth:
+        type: "string"
+      nationalityCountryCode:
+        type: "string"
+        description: "the ISO 3166 alpha-2 country (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)\
+          \ code of the person's nationality"
+      secondNationalityCountryCode:
+        type: "string"
+        description: "the ISO 3166 alpha-2 country (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)\
+          \ code of the person's second nationality"
+      language:
+        type: "string"
+        enum:
+        - "DE"
+        - "FR"
+      isSelfEmployed:
+        type: "string"
+        enum:
+        - "TRUE"
+        - "FALSE"
+      hasRetirementFund:
+        type: "string"
+        enum:
+        - "TRUE"
+        - "FALSE"
+      hasManagementFund:
+        type: "string"
+        enum:
+        - "TRUE"
+        - "FALSE"
+      transferForm:
+        type: "string"
+        enum:
+        - "TRUE"
+        - "FALSE"
+      profession:
+        type: "string"
+      idType:
+        type: "string"
+        enum:
+        - "ID"
+        - "PASSPORT"
+      idNumber:
+        type: "string"
+      idExpirydate:
+        type: "string"
+      accountNo:
+        type: "string"
+      accountNo3a:
+        type: "string"
+  ResponseExceptionMessage:
+    type: "object"
+    properties:
+      errorCode:
+        type: "string"
+      message:
+        type: "string"
+  ResponseMessage:
+    type: "object"
+    properties:
+      cobId:
+        type: "string"
+  SobDossier:
+    type: "object"
+    properties:
+      person:
+        $ref: "#/definitions/Person"
+      address:
+        $ref: "#/definitions/Address"
+      account:
+        $ref: "#/definitions/Account"
