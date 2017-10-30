@@ -44,7 +44,7 @@ public class IndividualchApi  {
 	 * @return
 	 */
     @POST
-    @Path("/dossiers")
+    @Path("/dossier")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "new client onboarding dossier (COB)", 
@@ -54,7 +54,7 @@ public class IndividualchApi  {
         @ApiResponse(code = 201, message = "dossier creation response with the individual client onboarding identifier of the new dossier. Only valid data will be mapped. For some invalid data will be map as null.", response = ResponseMessage.class),
         @ApiResponse(code = 500, message = "exception on server side when create new dossier, for some required field when invalid data it will throw mapping exception and dossier will not be created.", response = ResponseExceptionMessage.class),
         @ApiResponse(code = 400, message = "missing param for request", response = ResponseExceptionMessage.class)})
-    public Response createIndividualCHDossier( @ApiParam(value = "the provider which is requesting the new COB dossier.", required = true) @QueryParam("provider") @NotNull  String provider, 
+    public Response createDossier( @ApiParam(value = "the provider which is requesting the new COB dossier.", required = true) @QueryParam("provider") @NotNull  String provider, 
     					@ApiParam(value = "the external identification key as used by the provider.", required = true) @QueryParam("externalId") @NotNull  String externalId, 
     					@ApiParam(value = "data to use for the new dossier, such as personal details and adress", required = true)  SobDossier sobDossier) {
     	if (StringUtils.isBlank(provider) || StringUtils.isBlank(externalId) || sobDossier == null) {

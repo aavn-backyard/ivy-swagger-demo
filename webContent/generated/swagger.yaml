@@ -19,13 +19,13 @@ schemes:
 - "http"
 - "https"
 paths:
-  /Portal/individualch/dossiers:
+  /Portal/individualch/dossier:
     post:
       tags:
       - "dossier"
       summary: "new client onboarding dossier (COB)"
       description: "Creates a new client onboarding (COB) dossier for swiss individuals."
-      operationId: "createIndividualCHDossier"
+      operationId: "createDossier"
       consumes:
       - "application/json"
       produces:
