@@ -7,15 +7,13 @@
 	<artifactId>ivy-swagger-demo</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>iar</packaging>
-	<!-- <parent> <groupId>ch.axonivy.fintech</groupId> <artifactId>parentPOMFintech</artifactId> 
-		<version>0.00.09.00</version> </parent> -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<mockito.version>2.8.9</mockito.version>	<!-- old 1.10.19 -->
 		<powermock.version>1.7.0</powermock.version>	<!-- old 1.6.4 -->
 		<engine.path>D:\Axonivy\Engine\AxonIvyEngine6.3.0</engine.path>
-		<ivy.version>6.3.0</ivy.version>
+		<ivy.version>7.0.1</ivy.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -63,57 +61,33 @@
 		</plugins>
 	</build>
 	<profiles>
+		<!-- Profile run on Local -->
 		<profile>
-			<id>run_same_mojo</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>com.axonivy.ivy.vision.ci</groupId>
-						<artifactId>project-build-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<!-- Profile run on Windows Local -->
-		<profile>
-			<id>Windows</id>
+			<id>local</id>
 			<build>
 				<plugins>
 					<!-- Ivy build plugin -->
 					<plugin>
 						<groupId>com.axonivy.ivy.ci</groupId>
 						<artifactId>project-build-plugin</artifactId>
-						<version>6.3.0</version>
+						<version>7.0.1</version>
 						<extensions>true</extensions>
-					</plugin>
-					<!-- Copy {basedir}/classes to {basedir}/target/classes -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.6.0</version>
 						<executions>
 							<execution>
+								<id>share-ivy-classpath</id>
 								<phase>compile</phase>
+								<!-- This plugin will share the core engine path by this goal -->
 								<goals>
-									<goal>exec</goal>
+									<goal>share-engine-core-classpath</goal>
 								</goals>
 							</execution>
 						</executions>
-						<configuration>
-							<executable>xcopy</executable>
-							<arguments>
-								<argument>"./classes"</argument>
-								<argument>"./target/classes/*"</argument>
-								<argument>/Y</argument>
-								<argument>/E</argument>
-							</arguments>
-						</configuration>
 					</plugin>
 					<!-- Swagger maven plugin -->
 					<plugin>
 						<groupId>com.github.kongchen</groupId>
 						<artifactId>swagger-maven-plugin</artifactId>
-						<version>3.1.1</version>
+						<version>3.1.8</version>
 						<executions>
 							<execution>
 								<phase>compile</phase>
@@ -123,13 +97,22 @@
 							</execution>
 						</executions>
 						<configuration>
+							<!-- Include the classpath of engine and project itself to this plugin. -->
+							<additionalDependency>
+								<additionalClassPath>${ivy.engine.core.classpath},${basedir}/classes</additionalClassPath>
+							</additionalDependency>
+							<!-- Define some basic information for plugin, please read at https://github.com/kongchen/swagger-maven-plugin -->
 							<apiSources>
 								<apiSource>
 									<springmvc>false</springmvc>
-									<locations>ch.axonivy.demo.website.dossier.api</locations>
+									<locations>
+										<location>ch.axonivy.demo.website.dossier.api</location>
+										<location>ch.axonivy.demo</location>
+									</locations>
 									<schemes>http,https</schemes>
+									<!-- Host and path to resful api. For engine, *designer* should be replaced by application name that you deploy this project to -->
 									<host>localhost:8081</host>
-									<basePath>/ivy/api/</basePath>
+									<basePath>/ivy/api/designer</basePath>
 									<info>
 										<title>External Dossier Service</title>
 										<version>v1</version>
@@ -141,6 +124,7 @@
 											<url>http://www.axonfintech.com/</url>
 										</contact>
 									</info>
+									<!-- Format & location of output file -->
 									<outputFormats>yaml</outputFormats>
 									<swaggerDirectory>${basedir}/webContent/generated/</swaggerDirectory>
 									<securityDefinitions>
@@ -151,229 +135,6 @@
 									</securityDefinitions>
 								</apiSource>
 							</apiSources>
-						</configuration>
-					</plugin>
-					<!-- Replace {application} to correct app name -->
-					<plugin>
-						<groupId>com.google.code.maven-replacer-plugin</groupId>
-						<artifactId>replacer</artifactId>
-						<version>1.5.3</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>replace</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<file>${basedir}/webContent/generated/swagger.yaml</file>
-							<replacements>
-								<replacement>
-									<token>\{applicationName\}</token>
-									<value>designer</value>
-								</replacement>
-							</replacements>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<!-- Profile Linux -->
-		<profile>
-			<id>Linux</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.6.0</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<executable>cp</executable>
-							<arguments>
-								<argument>-R</argument>
-								<argument>-n</argument>
-								<argument>${basedir}/classes</argument>
-								<argument>${basedir}/target/classes/</argument>
-							</arguments>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>com.github.kongchen</groupId>
-						<artifactId>swagger-maven-plugin</artifactId>
-						<version>3.1.1</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>generate</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<apiSources>
-								<apiSource>
-									<springmvc>false</springmvc>
-									<locations>ch.axonivy.demo.website.dossier.api</locations>
-									<schemes>http,https</schemes>
-									<host>10.123.1.89:6060</host>
-									<basePath>/ivy/api/</basePath>
-									<info>
-										<title>External Dossier Service</title>
-										<version>v1</version>
-										<description>Transfer of customer data in a new onboarding
-											dossier.</description>
-										<contact>
-											<email>info@axonivy.com</email>
-											<name>Axon Fintech</name>
-											<url>http://www.axonfintech.com/</url>
-										</contact>
-									</info>
-									<outputFormats>yaml</outputFormats>
-									<swaggerDirectory>${basedir}/webContent/generated/swagger-ui</swaggerDirectory>
-									<securityDefinitions>
-										<securityDefinition>
-											<name>CicbasicAuth</name>
-											<type>basic</type>
-										</securityDefinition>
-									</securityDefinitions>
-								</apiSource>
-							</apiSources>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>com.google.code.maven-replacer-plugin</groupId>
-						<artifactId>replacer</artifactId>
-						<version>1.5.3</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>replace</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<file>${basedir}/webContent/generated/swagger.yaml</file>
-							<replacements>
-								<replacement>
-									<token>\{applicationName\}</token>
-									<value>Portal</value>
-								</replacement>
-							</replacements>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-		<!-- Profile run on Windows Server -->
-		<profile>
-			<id>WindowsServer</id>
-			<build>
-				<plugins>
-					<!-- Ivy build plugin -->
-					<plugin>
-						<groupId>com.axonivy.ivy.ci</groupId>
-						<artifactId>project-build-plugin</artifactId>
-						<version>6.3.0</version>
-						<extensions>true</extensions>
-					</plugin>
-					<!-- Copy {basedir}/classes to {basedir}/target/classes -->
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>exec-maven-plugin</artifactId>
-						<version>1.6.0</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>exec</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<executable>xcopy</executable>
-							<arguments>
-								<argument>"./classes"</argument>
-								<argument>"./target/classes/*"</argument>
-								<argument>/Y</argument>
-								<argument>/E</argument>
-							</arguments>
-						</configuration>
-					</plugin>
-					<!-- Swagger maven plugin -->
-					<plugin>
-						<groupId>com.github.kongchen</groupId>
-						<artifactId>swagger-maven-plugin</artifactId>
-						<version>3.1.1</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>generate</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<apiSources>
-								<apiSource>
-									<springmvc>false</springmvc>
-									<locations>ch.axonivy.demo.website.dossier.api</locations>
-									<schemes>http,https</schemes>
-									<host>10.123.1.89:6060</host>
-									<basePath>/ivy/api/</basePath>
-									<info>
-										<title>External Dossier Service</title>
-										<version>v1</version>
-										<description>Transfer of customer data in a new onboarding
-											dossier.</description>
-										<contact>
-											<email>info@axonivy.com</email>
-											<name>Axon Fintech</name>
-											<url>http://www.axonfintech.com/</url>
-										</contact>
-									</info>
-									<outputFormats>yaml</outputFormats>
-									<swaggerDirectory>${basedir}/webContent/generated/</swaggerDirectory>
-									<securityDefinitions>
-										<securityDefinition>
-											<name>basicAuth</name>
-											<type>basic</type>
-										</securityDefinition>
-									</securityDefinitions>
-								</apiSource>
-							</apiSources>
-						</configuration>
-					</plugin>
-					<!-- Replace {application} to correct app name -->
-					<plugin>
-						<groupId>com.google.code.maven-replacer-plugin</groupId>
-						<artifactId>replacer</artifactId>
-						<version>1.5.3</version>
-						<executions>
-							<execution>
-								<phase>compile</phase>
-								<goals>
-									<goal>replace</goal>
-								</goals>
-							</execution>
-						</executions>
-						<configuration>
-							<file>${basedir}/webContent/generated/swagger.yaml</file>
-							<replacements>
-								<replacement>
-									<token>\{applicationName\}</token>
-									<value>Portal</value>
-								</replacement>
-							</replacements>
 						</configuration>
 					</plugin>
 				</plugins>

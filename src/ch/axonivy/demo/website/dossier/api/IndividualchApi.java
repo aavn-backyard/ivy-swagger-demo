@@ -26,7 +26,7 @@ import io.swagger.annotations.Authorization;
 import io.swagger.annotations.Info;
 import io.swagger.annotations.SwaggerDefinition;
 
-@Path("{applicationName}/individualch")
+@Path("individualch")
 
 @Api(value="individualch", description = "the individualch API", authorizations={
 		@Authorization(value="basicAuth")

@@ -9,8 +9,8 @@ info:
     name: "Axon Fintech"
     url: "http://www.axonfintech.com/"
     email: "info@axonivy.com"
-host: "10.123.1.89:6060"
-basePath: "/ivy/api/"
+host: "localhost:8081"
+basePath: "/ivy/api/designer"
 tags:
 - name: "dossier"
 - name: "individualch"
@@ -19,7 +19,7 @@ schemes:
 - "http"
 - "https"
 paths:
-  /Portal/individualch/dossier:
+  /individualch/dossier:
     post:
       tags:
       - "dossier"
@@ -117,20 +117,22 @@ definitions:
   Address:
     type: "object"
     properties:
-      street:
+      kanton:
         type: "string"
-      houseNo:
+      temporaryCountry:
         type: "string"
-      additionalAdress:
+  DestinationBank:
+    type: "object"
+    required:
+    - "bankName"
+    properties:
+      bankId:
         type: "string"
-      zipCode:
+      bankName:
         type: "string"
-      city:
-        type: "string"
-      addressCountryCode:
-        type: "string"
-        description: "the ISO 3166 alpha-2 country (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)\
-          \ code of the adress"
+        description: "Name of bank"
+      address:
+        $ref: "#/definitions/Address"
   Person:
     type: "object"
     required:
@@ -230,6 +232,8 @@ definitions:
         type: "string"
   SobDossier:
     type: "object"
+    required:
+    - "destinationBank"
     properties:
       person:
         $ref: "#/definitions/Person"
@@ -237,3 +241,7 @@ definitions:
         $ref: "#/definitions/Address"
       account:
         $ref: "#/definitions/Account"
+      destinationBank:
+        description: "Bank that account will be created"
+        $ref: "#/definitions/DestinationBank"
+    description: "Contain data of dossier"

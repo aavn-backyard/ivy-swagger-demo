@@ -1,0 +1,6 @@
+DestinationBank #class
+ch.axonivy.demo #namespace
+bankId String #field
+bankName String #field
+bankName 'io.swagger.annotations.ApiModelProperty(value="Name of bank", required = true)' #fieldAnnotation
+address ch.axonivy.demo.website.dossier.bean.Address #field
